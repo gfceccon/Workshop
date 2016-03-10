@@ -6,9 +6,12 @@ namespace CompletedWorkshop
 {
     public class Enemy : MonoBehaviour
     {
-        public string targetTag = "Player";
+		public string targetTag = "Player";
+		public int playerDamage;
+		public LayerMask blockingLayer;
 
         private Transform target;
+		private BoxCollider2D boxCollider;
         private Rigidbody2D rigid;
 
         void Start()
@@ -18,11 +21,7 @@ namespace CompletedWorkshop
             target = GameObject.FindGameObjectWithTag(targetTag).transform;
 
             rigid = GetComponent<Rigidbody2D>();
-        }
-
-        void Update()
-        {
-
+			boxCollider = GetComponent<BoxCollider2D>();
         }
 
         public void MoveEnemy()
@@ -39,7 +38,28 @@ namespace CompletedWorkshop
             Vector2 start = transform.position;
             Vector2 end = start + new Vector2(hor, ver);
 
-            rigid.MovePosition(end);
+
+
+			RaycastHit2D hit;
+
+			boxCollider.enabled = false;
+			hit = Physics2D.Linecast(start, end, blockingLayer);
+			boxCollider.enabled = true;
+
+			if(hit != null && hit.transform != null)
+			{
+				Player player = hit.transform.GetComponent<Player>();
+				if(player != null)
+				{
+					player.DamagePlayer(playerDamage);
+					GameManager.instance.playersTurn = false;
+				}
+			}
+			else
+			{
+				rigid.MovePosition(end);
+				GameManager.instance.playersTurn = false;
+			}
         }
     }
 }
