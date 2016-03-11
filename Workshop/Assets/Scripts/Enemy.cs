@@ -9,7 +9,9 @@ namespace CompletedWorkshop
 		public string targetTag = "Player";
 		public int playerDamage;
 		public LayerMask blockingLayer;
+		public AudioClip[] enemySounds;
 
+		private Animator animator;
         private Transform target;
 		private BoxCollider2D boxCollider;
         private Rigidbody2D rigid;
@@ -22,6 +24,7 @@ namespace CompletedWorkshop
 
             rigid = GetComponent<Rigidbody2D>();
 			boxCollider = GetComponent<BoxCollider2D>();
+			animator = GetComponent<Animator>();
         }
 
         public void MoveEnemy()
@@ -52,6 +55,8 @@ namespace CompletedWorkshop
 				if(player != null)
 				{
 					player.DamagePlayer(playerDamage);
+					animator.SetTrigger("enemyAttack");
+					SoundManager.instance.RandomizeSfx(enemySounds);
 					GameManager.instance.playersTurn = false;
 				}
 			}

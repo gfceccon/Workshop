@@ -13,8 +13,13 @@ namespace CompletedWorkshop
         public LayerMask blockingLayer;
 		public int wallDamage = 1;
 
+		public AudioClip[] moveSounds;
+		public AudioClip[] eatSounds;
+		public AudioClip[] drinkSounds;
+
         private int food;
 
+		private Animator animator;
 		private BoxCollider2D boxCollider;
         private Rigidbody2D rigid;
 
@@ -24,6 +29,7 @@ namespace CompletedWorkshop
 
             rigid = GetComponent<Rigidbody2D>();
 			boxCollider = GetComponent<BoxCollider2D>();
+			animator = GetComponent<Animator>();
         }
 
         void OnDisable()
@@ -68,12 +74,14 @@ namespace CompletedWorkshop
 				if(wall != null)
 				{
 					wall.DamageWall(wallDamage);
+					animator.SetTrigger("playerChop");
 					GameManager.instance.playersTurn = false;
 				}
 			}
 			else
 			{
 				rigid.MovePosition(end);
+				SoundManager.instance.RandomizeSfx(moveSounds);
 				GameManager.instance.playersTurn = false;
 			}
         }
@@ -81,6 +89,7 @@ namespace CompletedWorkshop
 		public void DamagePlayer(int dmg)
 		{
 			food -= dmg;
+			animator.SetTrigger("playerHit");
 		}
 
         void OnTriggerEnter2D(Collider2D collider)
@@ -93,12 +102,14 @@ namespace CompletedWorkshop
             }
             else if(collider.tag.Equals("Food"))
             {
-                food += pointsPerFood;
+				food += pointsPerFood;
+				SoundManager.instance.RandomizeSfx(eatSounds);
                 collider.gameObject.SetActive(false);
             }
             else if(collider.tag.Equals("Soda"))
             {
-                food += pointsPerSoda;
+				food += pointsPerSoda;
+				SoundManager.instance.RandomizeSfx(drinkSounds);
                 collider.gameObject.SetActive(false);
             }
         }

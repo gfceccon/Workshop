@@ -7,6 +7,7 @@ namespace CompletedWorkshop
 	{
 		public Sprite damagedSprite;
 		public int hp = 4;
+		public AudioClip[] chopSounds;
 
 		private SpriteRenderer spriteRenderer;
 
@@ -18,6 +19,8 @@ namespace CompletedWorkshop
 		public void DamageWall(int dmg)
 		{
 			hp -= dmg;
+
+			SoundManager.instance.RandomizeSfx(chopSounds);
 
 			if(hp <= 0)
 				gameObject.SetActive(false);
