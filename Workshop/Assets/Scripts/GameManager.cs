@@ -10,7 +10,6 @@ namespace CompletedWorkshop
 	{
         public static GameManager instance = null;
 
-
         public int level = 1;
         public int playerFoodPoints = 100;
         public float levelStartDelay = 2f;
@@ -18,16 +17,18 @@ namespace CompletedWorkshop
         [HideInInspector]
         public bool playersTurn = false;
 
-
+        private Text levelText;
+        private GameObject levelImage;
         private BoardManager boardScript;
         private CameraAlign cameraScript;
         private List<Enemy> enemies;
         private bool enemiesMoving = false;
+        private bool doingSetup = true;
 
 
 
 		void Awake()
-		{
+        {
             if (GameManager.instance == null)
                 GameManager.instance = this;
             else if (GameManager.instance != this)
@@ -51,7 +52,7 @@ namespace CompletedWorkshop
 
         void Update()
         {
-            if (playersTurn || enemiesMoving)
+            if (playersTurn || enemiesMoving || doingSetup)
                 return;
 
             StartCoroutine(MoveEnemies());
@@ -59,11 +60,28 @@ namespace CompletedWorkshop
 
 		void InitGame()
 		{
+            doingSetup = true;
+            levelImage = GameObject.Find("LevelImage");
+            levelText = GameObject.Find("LevelText").GetComponent<Text>();
+
+            levelText.text = "Day " + level;
+
+            levelImage.SetActive(true);
+
+            Invoke("HideLevelImage", levelStartDelay);
+
             enemies.Clear();
 
 			boardScript.SetupScene(level);
             cameraScript.SetupCamera(boardScript.rows, boardScript.columns);
 		}
+
+        void HideLevelImage()
+        {
+            levelImage.SetActive(false);
+
+            doingSetup = false;
+        }
 
         public void AddEnemyToList(Enemy enemy)
         {
@@ -72,6 +90,8 @@ namespace CompletedWorkshop
 
         public void GameOver()
         {
+            levelText.text = "After " + level + " days, you starved.";
+            levelImage.SetActive(true);
             enabled = false;
         }
 

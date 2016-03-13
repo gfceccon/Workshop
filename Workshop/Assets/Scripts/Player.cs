@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace CompletedWorkshop
 {
@@ -16,9 +17,13 @@ namespace CompletedWorkshop
 		public AudioClip[] moveSounds;
 		public AudioClip[] eatSounds;
 		public AudioClip[] drinkSounds;
+        public AudioClip gameOverSound;
+
+        public Text foodText;
 
         private int food;
 
+        
 		private Animator animator;
 		private BoxCollider2D boxCollider;
         private Rigidbody2D rigid;
@@ -26,6 +31,8 @@ namespace CompletedWorkshop
         void Start()
         {
             food = GameManager.instance.playerFoodPoints;
+
+            foodText.text = "Food: " + food;
 
             rigid = GetComponent<Rigidbody2D>();
 			boxCollider = GetComponent<BoxCollider2D>();
@@ -57,8 +64,6 @@ namespace CompletedWorkshop
 
         void Move(int hor, int ver)
         {
-            food--;
-
             Vector2 start = transform.position;
             Vector2 end = start + new Vector2(hor, ver);
 
@@ -79,17 +84,34 @@ namespace CompletedWorkshop
 				}
 			}
 			else
-			{
+            {
+                food--;
+                foodText.text = "Food: " + food;
 				rigid.MovePosition(end);
 				SoundManager.instance.RandomizeSfx(moveSounds);
 				GameManager.instance.playersTurn = false;
 			}
+
+            CheckIfGameOver();
+        }
+
+        void CheckIfGameOver()
+        {
+            if (food <= 0)
+            {
+                SoundManager.instance.musicSource.Stop();
+                SoundManager.instance.PlaySingle(gameOverSound);
+                GameManager.instance.GameOver();
+
+            }
         }
 
 		public void DamagePlayer(int dmg)
 		{
-			food -= dmg;
-			animator.SetTrigger("playerHit");
+            food -= dmg;
+            foodText.text = "-" + dmg + " food: " + food;
+            animator.SetTrigger("playerHit");
+            CheckIfGameOver();
 		}
 
         void OnTriggerEnter2D(Collider2D collider)
@@ -102,13 +124,15 @@ namespace CompletedWorkshop
             }
             else if(collider.tag.Equals("Food"))
             {
-				food += pointsPerFood;
+                food += pointsPerFood;
+                foodText.text = "+" + pointsPerFood + " food: " + food;
 				SoundManager.instance.RandomizeSfx(eatSounds);
                 collider.gameObject.SetActive(false);
             }
             else if(collider.tag.Equals("Soda"))
             {
-				food += pointsPerSoda;
+                food += pointsPerSoda;
+                foodText.text = "+" + pointsPerSoda + " food: " + food;
 				SoundManager.instance.RandomizeSfx(drinkSounds);
                 collider.gameObject.SetActive(false);
             }

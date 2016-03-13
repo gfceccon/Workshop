@@ -5,7 +5,7 @@ namespace CompletedWorkshop
 {
 	public class SoundManager : MonoBehaviour
 	{
-		public static SoundManager instance;
+		public static SoundManager instance = null;
 
 		public AudioSource efxSource;
 		public AudioSource musicSource;
@@ -16,9 +16,9 @@ namespace CompletedWorkshop
 
 		void Awake ()
 		{
-			if (instance == null)
-				instance = this;
-			else if (instance != this)
+            if (SoundManager.instance == null)
+				SoundManager.instance = this;
+            else if (SoundManager.instance != this)
 				Destroy (gameObject);
 			
 			DontDestroyOnLoad (gameObject);
